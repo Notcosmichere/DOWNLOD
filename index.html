@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Private Downloader</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0f0f0; }
+        .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #ff0000; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #status { margin-top: 15px; font-size: 0.9em; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Video Downloader</h2>
+        <input type="text" id="videoUrl" placeholder="Paste YouTube Link here...">
+        <button onclick="downloadVideo()">Download 720p</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        async function downloadVideo() {
+            const url = document.getElementById('videoUrl').value;
+            const status = document.getElementById('status');
+            if (!url) return alert("Please paste a link!");
+
+            status.innerText = "Processing... please wait (this can take a minute).";
+            
+            // Replace 'YOUR_BACKEND_URL' with your PythonAnywhere URL later
+            const backendUrl = "https://yourusername.pythonanywhere.com/download";
+
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = "video_720p.mp4";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    status.innerText = "Download started!";
+                } else {
+                    status.innerText = "Error: Video might be restricted or too large.";
+                }
+            } catch (err) {
+                status.innerText = "Connection failed. Is the backend running?";
+            }
+        }
+    </script>
+</body>
+</html>
